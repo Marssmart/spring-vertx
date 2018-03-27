@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+      </Pattern>
+    </layout>
+  </appender>
+
+  <logger additivity="false" level="DEBUG"
+    name="org.deer">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+
+  <logger additivity="false" level="INFO"
+    name="org.springframework">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+
+  <!-- Vertx logging -->
+  <logger level="TRACE" name="io.vertx.core">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+  <logger level="ERROR" name="com.hazelcast">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+  <logger level="ERROR" name="io.netty.util.internal.PlatformDependent">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+</configuration>

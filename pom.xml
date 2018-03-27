@@ -12,6 +12,7 @@
     <module>spring-vertx-core</module>
     <module>spring-vertx-node</module>
     <module>spring-vertx-parent</module>
+    <module>spring-vertx-core-test</module>
   </modules>
 
 </project>
