@@ -1,6 +1,8 @@
 package org.deer.spring.vertx.core;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.shareddata.AsyncMap;
 import io.vertx.core.shareddata.Lock;
@@ -48,16 +50,21 @@ public class ClusterSingletonRegistratorBean {
       final Class<T> iface,
       final Provider<? extends T> instanceProvider) {
 
+    // unique descriptor from event bus address and service interface name
     final String descriptor = descriptor(serviceAddress, iface);
 
     final CompletableFuture<Void> deployFuture = new CompletableFuture<>();
 
+    // syntax sugar to auto release lock no matter what
+    // locks deployment by unique descriptor
+    // (allows only one node to access this deployment at the same time)
     try (CloseableLock lock = lockDeploy(descriptor)) {
       final AsyncMap<String, Boolean> deploymentRegistry = getSingletonMarkerMap();
 
       retrieveDeploymentMarker(descriptor, deploymentRegistry)
           .compose(marker -> {
             if (marker == null) {
+              // if marker is not present ,service has'nt been deployed yet
               LOG.info("Deployment marker for {} not present, deploying on this node", descriptor);
 
               return deployService(serviceAddress, iface, instanceProvider)
@@ -143,7 +150,7 @@ public class ClusterSingletonRegistratorBean {
 
   private AsyncMap<String, Boolean> getSingletonMarkerMap() {
     CompletableFuture<AsyncMap<String, Boolean>> mapResultFuture = new CompletableFuture<>();
-    vertx.sharedData().<String, Boolean>getClusterWideMap(SINGLETON_MAP, mapResult -> {
+    getSingletonRegisterClusterAware(mapResult -> {
       if (mapResult.succeeded()) {
         LOG.info("Singleton marker map retrieved");
         mapResultFuture.complete(mapResult.result());
@@ -155,6 +162,15 @@ public class ClusterSingletonRegistratorBean {
       return mapResultFuture.get();
     } catch (InterruptedException | ExecutionException e) {
       throw new IllegalStateException("Error while retrieving deployment registry", e);
+    }
+  }
+
+  private void getSingletonRegisterClusterAware(
+      Handler<AsyncResult<AsyncMap<String, Boolean>>> mapHandler) {
+    if (vertx.isClustered()) {
+      vertx.sharedData().getClusterWideMap(SINGLETON_MAP, mapHandler);
+    } else {
+      vertx.sharedData().getAsyncMap(SINGLETON_MAP, mapHandler);
     }
   }
 

@@ -6,6 +6,9 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+/**
+ * Factory for providing proxies that call cluster singletons
+ * */
 public class ClusterSingletonProxyFactory<TYPE> implements FactoryBean<TYPE> {
 
   private final String serviceAddress;
@@ -38,7 +41,7 @@ public class ClusterSingletonProxyFactory<TYPE> implements FactoryBean<TYPE> {
   }
 
   /**
-   * This implementation returns just proxies, the service itself will be deployed as single
+   * This implementation returns just proxies, the backing service will be deployed as single
    * instance within the cluster. So for performance reasons, letting it create proxy prototypes
    */
   @Override
