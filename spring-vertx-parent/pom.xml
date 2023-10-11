@@ -12,7 +12,7 @@
 
   <properties>
     <spring.version>5.0.4.RELEASE</spring.version>
-    <vertx.version>3.5.1</vertx.version>
+    <vertx.version>4.2.6</vertx.version>
     <javax.inject.version>1</javax.inject.version>
     <junit.version>4.12</junit.version>
     <maven.compiler.target>1.8</maven.compiler.target>
